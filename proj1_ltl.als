@@ -296,8 +296,6 @@ pred trans []  {
 pred System {
   init
   always trans
-		eventually (some mb: Mailbox | deleteMailbox [mb])
-		not eventually emptyTrash []
 }
 
 run execution { System } for 8
