@@ -216,6 +216,10 @@ pred deleteMailbox [mb: Mailbox] {
 	-- preconditions
 	mb.status = InUse
 	mb in MailApp.userboxes
+	mb != mInbox
+	mb != mDrafts
+	mb != mTrash
+	mb != mSent
 
 	-- post-conditions
 	after not mb in MailApp.userboxes
