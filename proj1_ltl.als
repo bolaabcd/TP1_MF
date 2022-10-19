@@ -6,8 +6,9 @@
 -- Miniproject 1
 --
 -- Names: 
+--		Alan Cabral Trindade Prado 2020006345
 --          Artur Gaspar da Silva 2020006388
---          <Colocar nome do Alan>
+--
 --
 --===============================================
 
@@ -50,7 +51,6 @@ one sig Track { -- Tracking is indicated what operation just happenned
 -----------------------
 
 -- May be convenient to use
-
 fun mInbox []: Mailbox { MailApp.inbox }
 fun mDrafts []: Mailbox { MailApp.drafts }
 fun mTrash []: Mailbox { MailApp.trash }
@@ -302,7 +302,7 @@ pred System {
   always trans
 }
 
-run execution { System } for 8
+--run execution { System } for 8
 
 
 --------------
@@ -311,38 +311,48 @@ run execution { System } for 8
 
 pred p1 {
 -- Active mailboxes contain only active messages
-
-}
+	always (no m : Message | (some (messages.m & status.InUse)) and (m.status != InUse))
+} -- No counterexample found
 
 pred p2 {
 -- Every active message belongs to some active mailbox
-
-}
+	always (all m : Message | one (messages.m & status.InUse))
+} -- No counterexample found
 
 pred p3 {
 -- Mailboxes do not share messages
-
-}
+	always (all mb1 : Mailbox | all mb2 : Mailbox - mb1 | no (mb1.messages & mb2.messages))
+} -- No counterexample found
 
 pred p4 {
 -- The system mailboxes are always active
-
-}
+	always (all mb : Mailbox | (
+		some inbox.mb or
+		some drafts.mb or
+		some trash.mb or
+		some sent.mb
+	) => (mb.status = InUse))
+} -- No counterexample found
 
 pred p5 {
 -- User-created mailboxes are different from the system mailboxes
-
-}
+	always (all mb : Mailbox | (
+		some inbox.mb or
+		some drafts.mb or
+		some trash.mb or
+		some sent.mb
+	) => (no userboxes.mb))
+} -- No counterexample found
 
 pred p6 {
 -- An object can have Purged status only if it was once active
-
-}
+	always (all o : Object | o.status = Purged => (once o.status = InUse))
+} -- No counterexample found
 
 pred p7 {
 -- Every sent message was once a draft message
-
-}
+	always (all m : Message | m in mSent.messages => (once m in mDrafts.messages))
+} -- Counterexample found!!!!!!
 
 --------------
 -- Assertions
@@ -355,3 +365,5 @@ assert a4 { System => p4 }
 assert a5 { System => p5 }
 assert a6 { System => p6 }
 assert a7 { System => p7 }
+
+check a7 for 10 but 8 steps
