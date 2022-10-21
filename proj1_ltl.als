@@ -1,4 +1,5 @@
 
+
 --===============================================
 -- DCC831 Formal Methods
 -- 2022.2
@@ -111,11 +112,11 @@ pred moveMessage [m: Message, mb1: Mailbox] {
 	-- preconditions
 	mb1.status = InUse -- mb1 needs to be valid
 	not m in mb1.messages
-	some mb : Mailbox & status.InUse | m in mb.messages -- must be moved from some active mailbox
+	some mb : Mailbox | m in mb.messages -- must be moved from some mailbox
 
 	-- post-conditions
 	after m in mb1.messages
-	all mb : Mailbox | m in mb.messages => (mb.status = InUse and after (not m in mb.messages)) -- not where it was, and it was in a valid mailbox
+	all mb : Mailbox | m in mb.messages => after (not m in mb.messages) -- not where it was
 
 	-- frame conditions
 	all ob: Object | ob.status = ob.status'
@@ -181,7 +182,7 @@ pred emptyTrash [] { -- if it's already empty, this operation does nothing
 
 	-- post-conditions
 	after mTrash.messages = none
-	after all m : mTrash.messages | m.status = Purged
+	all m : mTrash.messages | after m.status = Purged
 
 	-- frame conditions
 	all ob: Object - mTrash.messages | ob.status = ob.status'
@@ -316,7 +317,7 @@ pred p1 {
 
 pred p2 {
 -- Every active message belongs to some active mailbox
-	always (all m : Message | one (messages.m & status.InUse))
+	always (all m : Message | m.status = InUse => one (messages.m & status.InUse))
 } -- No counterexample found
 
 pred p3 {
