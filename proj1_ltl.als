@@ -326,22 +326,14 @@ pred p3 {
 
 pred p4 {
 -- The system mailboxes are always active
-	always (all mb : Mailbox | (
-		some inbox.mb or
-		some drafts.mb or
-		some trash.mb or
-		some sent.mb
-	) => (mb.status = InUse))
+	always (all mb : Mailbox |
+		some (inbox.mb + drafts.mb + trash.mb + sent.mb) => (mb.status = InUse))
 } -- No counterexample found
 
 pred p5 {
 -- User-created mailboxes are different from the system mailboxes
-	always (all mb : Mailbox | (
-		some inbox.mb or
-		some drafts.mb or
-		some trash.mb or
-		some sent.mb
-	) => (no userboxes.mb))
+	always (all mb : Mailbox |
+		some userboxes.mb => no (inbox.mb + drafts.mb + trash.mb + sent.mb))
 } -- No counterexample found
 
 pred p6 {
@@ -352,7 +344,8 @@ pred p6 {
 pred p7 {
 -- Every sent message was once a draft message
 	always (all m : Message | m in mSent.messages => (once m in mDrafts.messages))
-} -- Counterexample found!!!!!!
+} -- Counterexample found!! Messages can be moved to the sent messages mailbox
+ -- with the moveMessage operator regardless of being a draft at some point.
 
 --------------
 -- Assertions
@@ -366,4 +359,4 @@ assert a5 { System => p5 }
 assert a6 { System => p6 }
 assert a7 { System => p7 }
 
-check a7 for 10 but 8 steps
+check a7 for 15 but 12 steps
